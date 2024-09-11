@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import ru.skypro.homework.dto.Role;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -42,9 +43,10 @@ public class User {
     @JsonIgnore
     private ImageUser image;
 
-    @Column(name = "username", nullable = false)
-    private String username;
-
     @Column(name = "password", nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Comment> comments;
 }
