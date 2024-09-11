@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateOrUpdateComment {
 
-    // Поле id можно не включать, если оно генерируется автоматически при создании
-    private String text; // Текст комментария
+    private String text;
 
-    private long userId; // Идентификатор пользователя, который оставляет комментарий
+    private long userId;
 }
