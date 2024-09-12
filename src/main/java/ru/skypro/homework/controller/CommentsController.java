@@ -1,5 +1,6 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,7 @@ public class CommentsController {
      * @param adId идентификатор объявления, для которого нужно получить комментарии
      * @return список комментариев, связанных с объявлением
      */
+    @Operation(summary = "Получение комментариев объявления")
     @GetMapping
     public ResponseEntity<List<Comment>> getComments(@PathVariable("adId") int adId) {
         // TODO: Логика в классе сервиса для получения комментариев
@@ -37,6 +39,7 @@ public class CommentsController {
      * @param commentData данные для создания нового комментария
      * @return созданный комментарий
      */
+    @Operation(summary = "Добавление комментария к объявлению")
     @PostMapping
     public ResponseEntity<Comment> addComment(
             @PathVariable("adId") int adId,
@@ -52,6 +55,7 @@ public class CommentsController {
      * @param commentId идентификатор комментария, который нужно удалить
      * @return статус ответа 200 OK при успешном удалении
      */
+    @Operation(summary = "Удаление комментария")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
@@ -68,6 +72,7 @@ public class CommentsController {
      * @param commentData данные для обновления комментария
      * @return обновлённый комментарий
      */
+    @Operation(summary = "Обновление комментария")
     @PatchMapping("/{commentId}")
     public ResponseEntity<Comment> updateComment(
             @PathVariable("adId") int adId,

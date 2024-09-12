@@ -19,16 +19,21 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_comment")
-    private long id; // Именуется в эндпоинте как: pk
+    private long id;
 
     @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "text_comment")
+    @Column(name = "text_comment", nullable = false)
     private String text;
 
-    @ManyToOne
-    @JoinColumn(name = "id_user", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_user", referencedColumnName = "id_user", nullable = false)
     @JsonIgnore
     private User user;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_ad", referencedColumnName = "id_ad", nullable = false)
+    @JsonIgnore
+    private Ad ad;
 }

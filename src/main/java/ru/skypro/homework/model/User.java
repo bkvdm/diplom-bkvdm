@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import ru.skypro.homework.dto.Role;
 
 import javax.persistence.*;
@@ -25,10 +24,10 @@ public class User {
     @Column(name = "email_user", nullable = false)
     private String email;
 
-    @Column(name = "firstName_user", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "lastName_user", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Column(name = "phone_user", nullable = false)
@@ -40,7 +39,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     @JsonIgnore
-    private ImageUser image;
+    private ImageUser imageUser;
 
     @Column(name = "password", nullable = false)
     private String password;
