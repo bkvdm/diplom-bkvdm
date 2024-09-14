@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.service.AuthService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -21,7 +23,20 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "Авторизация пользователя")
+    /**
+     * Авторизация пользователя.
+     *
+     * @param login объект, содержащий имя пользователя и пароль.
+     * @return успешный отклик с кодом 200, если авторизация прошла успешно,
+     * или отклик с кодом 401, если авторизация не удалась.
+     */
+    @Operation(tags = "Авторизация", summary = "Авторизация пользователя",
+            description = "Метод для авторизации пользователя",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешная авторизация"),
+                    @ApiResponse(responseCode = "401", description = "Неверные учетные данные", content = @Content),
+                    @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
+            })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Login login) {
         if (authService.login(login.getUsername(), login.getPassword())) {
@@ -31,7 +46,20 @@ public class AuthController {
         }
     }
 
-    @Operation(summary = "Регистрация пользователя")
+    /**
+     * Регистрация нового пользователя.
+     *
+     * @param register объект, содержащий информацию для регистрации.
+     * @return успешный отклик с кодом 201, если регистрация прошла успешно,
+     * или отклик с кодом 400, если введенные данные некорректны.
+     */
+    @Operation(tags = "Регистрация", summary = "Регистрация пользователя",
+            description = "Метод регистрации пользователя",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Пользователь успешно зарегистрирован"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные входные данные", content = @Content),
+                    @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
+            })
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Register register) {
         if (authService.register(register)) {
