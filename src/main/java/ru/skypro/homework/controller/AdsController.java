@@ -2,7 +2,9 @@ package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,7 +59,11 @@ public class AdsController {
     @PostMapping
     public ResponseEntity<Ad> addAd(
             @RequestParam("image") MultipartFile image,
-            @RequestParam("properties") CreateOrUpdateAd adProperties) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "DTO объявления для его обновления",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = CreateOrUpdateAd.class))
+            ) @RequestParam("properties") CreateOrUpdateAd adProperties) {
         // TODO: Дополнить логику добавления объявления в сервисе
         return ResponseEntity.status(201).body(new Ad());
     }
@@ -121,7 +127,11 @@ public class AdsController {
     @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
     public ResponseEntity<Ad> updateAd(
             @PathVariable("id") long id,
-            @RequestBody CreateOrUpdateAd updateData) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "DTO объявления для его обновления",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = CreateOrUpdateAd.class))
+            ) @RequestBody CreateOrUpdateAd updateData) {
         // TODO: Дополнить логику обновления объявления по значению id объявления
         return ResponseEntity.ok(new Ad());
     }
@@ -159,10 +169,10 @@ public class AdsController {
                     @ApiResponse(responseCode = "404", description = "Объявление не найдено", content = @Content),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
-    @PatchMapping("/{id}/image")
+    @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateImage(
-            @PathVariable("id") long id,
-            @RequestParam("image") MultipartFile image) {
+            @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1") @PathVariable("id") long id,
+            @Parameter(name = "file", description = "Файл картинки в формате multipart", required = true) @RequestParam("image") MultipartFile image) {
         // TODO: Дополнить логику обновления картинки объявления по id объявления
         return ResponseEntity.ok("Image updated successfully.");
     }

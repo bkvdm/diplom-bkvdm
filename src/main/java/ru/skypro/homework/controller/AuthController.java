@@ -1,6 +1,7 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,12 @@ public class AuthController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Login login) {
+    public ResponseEntity<?> login(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "DTO пользователя для его авторизации",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = Login.class))
+            ) @RequestBody Login login) {
         if (authService.login(login.getUsername(), login.getPassword())) {
             return ResponseEntity.ok().build();
         } else {
@@ -61,7 +67,12 @@ public class AuthController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Register register) {
+    public ResponseEntity<?> register(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "DTO регистрируемого пользователя",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = Register.class))
+            ) @RequestBody Register register) {
         if (authService.register(register)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
