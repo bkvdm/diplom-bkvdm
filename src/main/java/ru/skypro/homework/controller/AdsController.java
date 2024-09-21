@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,23 +51,50 @@ public class AdsController {
      * @return созданное объявление.
      */
     @Operation(summary = "Добавление объявления",
-            description = "Метод для добавления объявления", tags={ "Объявления" },
+            description = "Метод для добавления объявления", tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "201", description = "Объявление успешно добавлено"),
                     @ApiResponse(responseCode = "400", description = "Некорректные входные данные", content = @Content),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Ad> addAd(
-            @RequestParam("image") MultipartFile image,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "DTO объявления для его обновления",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = CreateOrUpdateAd.class))
-            ) @RequestParam("properties") CreateOrUpdateAd adProperties) {
+            @RequestParam("properties") CreateOrUpdateAd adProperties,
+//            @ModelAttribute CreateOrUpdateAd adProperties,
+
+            @Parameter(name = "image", description = "Изображение для объявления", required = true)
+            @RequestParam MultipartFile image) {
+
         // TODO: Дополнить логику добавления объявления в сервисе
-        return ResponseEntity.status(201).body(new Ad());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Ad());
     }
+
+
+///**
+// * Добавление нового объявления.
+// *
+// * @param image        изображение для объявления.
+// * @param adProperties свойства нового объявления.
+// * @return созданное объявление.
+// */
+//@Operation(summary = "Добавление объявления",
+//        description = "Метод для добавления объявления", tags = { "Объявления" },
+//        responses = {
+//                @ApiResponse(responseCode = "201", description = "Объявление успешно добавлено"),
+//                @ApiResponse(responseCode = "400", description = "Некорректные входные данные", content = @Content),
+//                @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+//        })
+//@PostMapping(value = "/ads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//public ResponseEntity<Ad> addAd(
+//        @Parameter(description = "Изображение для объявления", required = true)
+//        @RequestParam("image") MultipartFile image,
+//
+//        @Parameter(description = "DTO объявления для его обновления", required = true)
+//        @RequestPart("properties") CreateOrUpdateAd adProperties) {
+//
+//    // TODO: Логика добавления объявления в сервисе
+//    return ResponseEntity.status(HttpStatus.CREATED).body(new Ad());
+//}
 
     /**
      * Получение информации об объявлении по его идентификатору.

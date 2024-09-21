@@ -7,14 +7,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.CreateOrUpdateComment;
+import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
-
-import java.util.Map;
 
 /**
  * REST-контроллер для управления пользователями.
@@ -28,7 +26,7 @@ public class UserController {
     /**
      * Обновляет пароль авторизованного пользователя.
      *
-     * @param newPassword карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
+     * @param newPassword овыми значениями пароля, где ключ – это старый пароль и новый пароль
      * @return сообщение о статусе обновления пароля
      */
     @Operation(summary = "Обновление пароля",
@@ -41,7 +39,7 @@ public class UserController {
             })
     @PostMapping("/set_password")
     public ResponseEntity<String> setPassword(
-            @RequestBody Map<String, String> newPassword) {
+            @RequestBody NewPassword newPassword) {
         // TODO: Логика в методе класса сервиса для обновления пароля
         return ResponseEntity.ok("Password updated successfully.");
     }
@@ -59,9 +57,9 @@ public class UserController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
+    public ResponseEntity<UserDto> getUserDto() {
         // TODO: Логика в методе класса сервиса для получения информации о пользователе
-        return ResponseEntity.ok(new User());
+        return ResponseEntity.ok(new UserDto());
     }
 
     /**
