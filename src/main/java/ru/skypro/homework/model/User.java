@@ -38,13 +38,13 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "user")
-    @JsonIgnore
+//    @JsonIgnore
     private ImageUser imageUser;
 
     @Column(name = "password", nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "user")
-    @JsonIgnore
+//    @JsonIgnore
     private List<Comment> comments;
 }

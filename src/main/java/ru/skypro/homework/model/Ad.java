@@ -33,15 +33,15 @@ public class Ad {
     private String description;
 
     @OneToOne(mappedBy = "ad")
-    @JsonIgnore
+//    @JsonIgnore
     private ImageAd imageAd;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
-    @JsonIgnore
+//    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "ad")
-    @JsonIgnore
+//    @JsonIgnore
     private List<Comment> comments;
 }

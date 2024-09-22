@@ -29,11 +29,11 @@ public class Comment {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_user", referencedColumnName = "id_user", nullable = false)
-    @JsonIgnore
+//    @JsonIgnore
     private User user;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_ad", referencedColumnName = "id_ad", nullable = false)
-    @JsonIgnore
+//    @JsonIgnore
     private Ad ad;
 }

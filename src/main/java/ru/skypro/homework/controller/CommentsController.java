@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
 import ru.skypro.homework.model.Comment;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,11 +40,11 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @GetMapping
-    public ResponseEntity<List<Comment>> getComments(
+    public ResponseEntity<List<CommentReview>> getComments(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId) {
         // TODO: Логика в классе сервиса для получения комментариев
-        return ResponseEntity.ok(List.of(new Comment()));
+        return ResponseEntity.ok(List.of(new CommentReview()));
     }
 
     /**
@@ -62,7 +63,7 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PostMapping
-    public ResponseEntity<Comment> addComment(
+    public ResponseEntity<CommentReview.CommentResult> addComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -71,7 +72,7 @@ public class CommentsController {
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
         // TODO: Логика в классе сервиса добавления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(new CommentReview.CommentResult());
     }
 
     /**
@@ -115,7 +116,7 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Comment> updateComment(
+    public ResponseEntity<CommentReview.CommentResult> updateComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
             @Parameter(description = "Идентификатор комментария", required = true, example = "1")
@@ -126,6 +127,6 @@ public class CommentsController {
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
         // TODO: Логика в классе сервиса для обновления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(new CommentReview.CommentResult());
     }
 }

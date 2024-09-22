@@ -20,7 +20,9 @@ public class CreateOrUpdateComment {
     @Size(min = 8, max = 64, message = "The comment of the ad must be between 8 and 64 characters")
     private String text;
 
+    @Schema(description = "id пользователя")
     private long userId;
 
+    @Schema(description = "id объявления")
     private long adId;
 }

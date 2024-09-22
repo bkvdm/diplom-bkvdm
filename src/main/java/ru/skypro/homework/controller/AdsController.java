@@ -9,12 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.AdReview;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.model.Ad;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,19 +31,46 @@ public class AdsController {
     /**
      * Получение всех объявлений.
      *
-     * @return список всех объявлений.
+     * @return объект Ads, содержащий количество объявлений и список всех объявлений.
      */
     @Operation(summary = "Получение всех объявлений",
-            description = "Метод получения всех объявлений", tags={ "Объявления" },
+            description = "Метод получения всех объявлений, возвращает количество объявлений и их список.",
+            tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Список всех объявлений успешно получен"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
     @GetMapping
-    public ResponseEntity<List<Ad>> getAllAds() {
-        // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
-        return ResponseEntity.ok(List.of(new Ad()));
+    public ResponseEntity<AdReview> getAllAds() {
+        List<AdReview.AdResult> adResults = new ArrayList<>();
+        adResults.add(new AdReview.AdResult());
+
+        AdReview response = new AdReview();
+        response.setCount(adResults.size());
+        response.setResults(adResults);
+
+        return ResponseEntity.ok(response);
     }
+
+
+
+//    /**
+//     * Получение всех объявлений.
+//     *
+//     * @return список всех объявлений.
+//     */
+//    @Operation(summary = "Получение всех объявлений",
+//            description = "Метод получения всех объявлений", tags={ "Объявления" },
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Список всех объявлений успешно получен"),
+//                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+//            })
+//    @GetMapping
+//    public ResponseEntity<List<Ads>> getAllAds() {
+//        // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
+//        return ResponseEntity.ok(List.of(new Ads()));
+//    }
+
 
     /**
      * Добавление нового объявления.
@@ -58,7 +87,7 @@ public class AdsController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Ad> addAd(
+    public ResponseEntity<AdReview.AdResult> addAd(
             @RequestParam("properties") CreateOrUpdateAd adProperties,
 //            @ModelAttribute CreateOrUpdateAd adProperties,
 
@@ -66,7 +95,7 @@ public class AdsController {
             @RequestParam MultipartFile image) {
 
         // TODO: Дополнить логику добавления объявления в сервисе
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Ad());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AdReview.AdResult());
     }
 
 
@@ -103,7 +132,7 @@ public class AdsController {
      * @return расширенная информация о выбранном объявлении.
      */
     @Operation(summary = "Получение информации об объявлении",
-            description = "Метод для получения информации об объявлении", tags={ "Объявления" },
+            description = "Метод для получения информации об объявлении", tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Информация об объявлении успешно получена"),
                     @ApiResponse(responseCode = "404", description = "Объявление не найдено", content = @Content),
@@ -123,7 +152,7 @@ public class AdsController {
      * @return пустой ответ с кодом 204.
      */
     @Operation(summary = "Удаление объявления",
-            description = "Метод для удаления объявления", tags={ "Объявления" },
+            description = "Метод для удаления объявления", tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "204", description = "Объявление успешно удалено"),
                     @ApiResponse(responseCode = "404", description = "Объявление не найдено", content = @Content),
@@ -144,7 +173,7 @@ public class AdsController {
      * @return обновленное объявление.
      */
     @Operation(summary = "Обновление информации об объявлении",
-            description = "Метод обновления информации об объявлении", tags={ "Объявления" },
+            description = "Метод обновления информации об объявлении", tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Объявление успешно обновлено"),
                     @ApiResponse(responseCode = "400", description = "Некорректные входные данные", content = @Content),
@@ -153,7 +182,7 @@ public class AdsController {
             })
     @PatchMapping("/{id}")
     @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
-    public ResponseEntity<Ad> updateAd(
+    public ResponseEntity<AdReview.AdResult> updateAd(
             @PathVariable("id") long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "DTO объявления для его обновления",
@@ -161,26 +190,50 @@ public class AdsController {
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateAd.class))
             ) @RequestBody CreateOrUpdateAd updateData) {
         // TODO: Дополнить логику обновления объявления по значению id объявления
-        return ResponseEntity.ok(new Ad());
+        return ResponseEntity.ok(new AdReview.AdResult());
     }
 
     /**
      * Получение объявлений авторизованного пользователя.
      *
-     * @return список объявлений текущего пользователя.
+     * @return объект Ads, содержащий количество объявлений и список объявлений текущего пользователя..
      */
-    @Operation(summary = "Получение объявлений авторизованного пользователя",
-            description = "Метод для получения объявлений зарегистрированного пользователя", tags={ "Объявления" },
+    @Operation(summary = "Получение всех объявлений авторизированного пользователя",
+            description = "Метод получения списка объявлений текущего пользователя, возвращает количество объявлений и их список по авторизированному пользователю.",
+            tags = {"Объявления"},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Объявления успешно получены"),
-                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован", content = @Content),
+                    @ApiResponse(responseCode = "200", description = "Список всех объявлений успешно получен"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
     @GetMapping("/me")
-    public ResponseEntity<List<Ad>> getMyAds() {
-        // TODO: Дополнить логику получения объявлений авторизованного пользователя
-        return ResponseEntity.ok(List.of(new Ad()));
+    public ResponseEntity<AdReview> getAllAdsMe() {
+        List<AdReview.AdResult> adResults = new ArrayList<>();
+        adResults.add(new AdReview.AdResult());
+
+        AdReview response = new AdReview();
+        response.setCount(adResults.size());
+        response.setResults(adResults);
+
+        return ResponseEntity.ok(response);
     }
+
+//    /**
+//     * Получение объявлений авторизованного пользователя.
+//     *
+//     * @return список объявлений текущего пользователя.
+//     */
+//    @Operation(summary = "Получение объявлений авторизованного пользователя",
+//            description = "Метод для получения объявлений зарегистрированного пользователя", tags = {"Объявления"},
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Объявления успешно получены"),
+//                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован", content = @Content),
+//                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+//            })
+//    @GetMapping("/me")
+//    public ResponseEntity<List<Ad>> getMyAds() {
+//        // TODO: Дополнить логику получения объявлений авторизованного пользователя
+//        return ResponseEntity.ok(List.of(new Ad()));
+//    }
 
     /**
      * Обновление картинки для объявления по его идентификатору.
@@ -190,7 +243,7 @@ public class AdsController {
      * @return сообщение об успешном обновлении изображения.
      */
     @Operation(summary = "Обновление картинки объявления",
-            description = "Метод обновления изображения к объявлению", tags={ "Объявления" },
+            description = "Метод обновления изображения к объявлению", tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Изображение успешно обновлено"),
                     @ApiResponse(responseCode = "400", description = "Некорректное изображение", content = @Content),

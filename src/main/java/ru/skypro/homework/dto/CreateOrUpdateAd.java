@@ -23,6 +23,9 @@ public class CreateOrUpdateAd {
     @Size(min = 8, max = 64, message = "The description of the ad must be between 8 and 64 characters")
     private String description;
 
+    @Schema(description = "id пользователя")
     private Long userId;
+
+    @Schema(description = "id картинки объявления")
     private Long imageAdId;
 }

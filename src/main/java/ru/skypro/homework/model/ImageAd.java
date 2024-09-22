@@ -29,11 +29,11 @@ public class ImageAd {
     private String mediaType;
 
     @Column(name = "data_image")
-    @JsonIgnore
+//    @JsonIgnore
     private byte[] dataForm;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_ad")
-    @JsonIgnore
+//    @JsonIgnore
     private Ad ad;
 }
