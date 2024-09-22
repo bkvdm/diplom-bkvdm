@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.skypro.homework.dto.Role;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
@@ -19,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private int id;
+    private long id;
 
     @Column(name = "email_user", nullable = false)
     private String email;
@@ -38,13 +38,13 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "user")
-    @JsonIgnore
+//    @JsonIgnore
     private ImageUser imageUser;
 
     @Column(name = "password", nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "user")
-    @JsonIgnore
+//    @JsonIgnore
     private List<Comment> comments;
 }
