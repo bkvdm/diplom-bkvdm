@@ -3,16 +3,25 @@ package ru.skypro.homework.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
+import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.AuthService;
+import ru.skypro.homework.service.UserImageService;
+import ru.skypro.homework.service.UserService;
+
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * REST-контроллер для управления пользователями.
@@ -22,6 +31,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 @Tag(name = "Пользователи")
 @RequestMapping("/users")
 public class UserController {
+
+    private final UserService userService;
+    private final AuthService authService;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final UserImageService userImageService;
+
+    public UserController(UserService userService, AuthService authService, UserRepository userRepository, UserMapper userMapper, UserImageService userImageService) {
+        this.userService = userService;
+        this.authService = authService;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.userImageService = userImageService;
+    }
 
     /**
      * Обновляет пароль авторизованного пользователя.
@@ -49,6 +72,7 @@ public class UserController {
      *
      * @return информация о текущем авторизованном пользователе
      */
+    @CrossOrigin(value = "http://localhost:3000")
     @Operation(summary = "Получение информации об авторизованном пользователе",
             description = "Метод получения информации о зарегистрированном пользователе",
             responses = {
@@ -58,8 +82,11 @@ public class UserController {
             })
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUserDto() {
-        // TODO: Логика в методе класса сервиса для получения информации о пользователе
-        return ResponseEntity.ok(new UserDto());
+        UserDto userDto = userService.getCurrentUser();
+        if (userDto != null) {
+            return ResponseEntity.ok(userDto);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     /**
@@ -104,8 +131,17 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateUserImage(
 //            @Parameter(name = "id", description = "Идентификатор пользователя", required = true, example = "1") @PathVariable("id") long id,
-            @Parameter(name = "image", description = "Файл аватара в формате multipart", required = true) @RequestParam("image") MultipartFile image) {
+            @Parameter(name = "image", description = "Файл аватара в формате multipart", required = true) @RequestParam("image") MultipartFile image) throws IOException {
         // TODO: Логика в методе класса обновления аватара
+        Optional<String> userEmailOptional = authService.getCurrentUserEmail();
+
+        if (userEmailOptional.isPresent()) {
+            userImageService.uploadUserImage(userEmailOptional.get(), image);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User is not authenticated");
+        }
+
         return ResponseEntity.ok("User image updated successfully.");
     }
 }

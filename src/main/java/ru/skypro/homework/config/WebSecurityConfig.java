@@ -31,17 +31,19 @@ public class WebSecurityConfig {
             "/error"
     };
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user =
-                User.builder()
-                        .username("user@gmail.com")
-                        .password("password")
-                        .passwordEncoder(passwordEncoder::encode)
-                        .roles(Role.USER.name())
-                        .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
+//        UserDetails user =
+//                User.builder()
+//                        .username("user@gmail.com")
+//                        .password("password")
+//                        .passwordEncoder(passwordEncoder::encode)
+//                        .roles(Role.USER.name())
+//                        .build();
+//        return new InMemoryUserDetailsManager(user);
+//    }
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,22 +52,100 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorization ->
                         authorization
                                 .requestMatchers(AUTH_WHITELIST).permitAll()
-                                .requestMatchers("/ads/**", "/users/**").authenticated()
+//                                .requestMatchers("/ads/**", "/users/**").authenticated()
+                                .requestMatchers("/ads/**").hasRole("USER") // Доступ для пользователей с ролью USER
+                                .requestMatchers("/users/**").hasRole("ADMIN") // Доступ для пользователей с ролью ADMIN
+                                .anyRequest().authenticated() // Все остальные применяют аутентификации
                 )
                 .cors(withDefaults())  // Настройка CORS
-//                .httpBasic(withDefaults())  // Настройка базовой аутентификации
-                .httpBasic(withDefaults -> withDefaults.disable());  // Отключаем базовую аутентификацию
-//                .headers(headers -> headers
-//                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestors 'self'"))
-//                );
+                .httpBasic(withDefaults())  // Настройка базовой аутентификации
+//                .httpBasic(withDefaults -> withDefaults.disable());  // Отключаем базовую аутентификацию
+                .headers(headers -> headers
+                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestors 'self'"))
+                );
         return http.build();
     }
+
+    //    @Bean
+    //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //        http
+    //                .csrf(csrf -> csrf.disable())
+    //                .authorizeHttpRequests(authorization ->
+    //                        authorization
+    //                                .requestMatchers(AUTH_WHITELIST).permitAll()
+    //                                .requestMatchers("/ads/**").hasRole("USER") // Доступ для пользователей с ролью USER
+    //                                .requestMatchers("/users/**").hasRole("ADMIN") // Доступ для пользователей с ролью ADMIN
+    //                                .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
+    //                )
+    //                .cors(withDefaults())  // Настройка CORS
+    //                .httpBasic(withDefaults())  // Настройка базовой аутентификации
+    //                .headers(headers -> headers
+    //                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestors 'self'"))
+    //                );
+    //        return http.build();
+    //    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
+
+//...
+
+//@Configuration
+//public class WebSecurityConfig {
+//
+//    private static final String[] AUTH_WHITELIST = {
+//            "/swagger-resources/**",
+//            "/swagger-ui.html",
+//            "/swagger-ui/**",
+//            "/v3/api-docs",
+//            "/webjars/**",
+//            "/login",
+//            "/register",
+//            "/h2-console/**",
+//            "/swagger-ui/index.html#/",
+//            "/error"
+//    };
+//
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
+//        UserDetails user =
+//                User.builder()
+//                        .username("user@gmail.com")
+//                        .password("password")
+//                        .passwordEncoder(passwordEncoder::encode)
+//                        .roles(Role.USER.name())
+//                        .build();
+//        return new InMemoryUserDetailsManager(user);
+//    }
+//
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(authorization ->
+//                        authorization
+//                                .requestMatchers(AUTH_WHITELIST).permitAll()
+//                                .requestMatchers("/ads/**", "/users/**").authenticated()
+//                )
+//                .cors(withDefaults())  // Настройка CORS
+////                .httpBasic(withDefaults())  // Настройка базовой аутентификации
+//                .httpBasic(withDefaults -> withDefaults.disable());  // Отключаем базовую аутентификацию
+////                .headers(headers -> headers
+////                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("frame-ancestors 'self'"))
+////                );
+//        return http.build();
+//    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//}
+
+//...
 
 
 //@Configuration
