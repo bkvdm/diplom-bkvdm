@@ -2,6 +2,7 @@ package ru.skypro.homework.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "ads")
 @Data
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ad {
@@ -32,8 +34,8 @@ public class Ad {
     @Column(name = "text_description", nullable = false)
     private String description;
 
-    @OneToOne(mappedBy = "ad")
-//    @JsonIgnore
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private ImageAd imageAd;
 
     @ManyToOne

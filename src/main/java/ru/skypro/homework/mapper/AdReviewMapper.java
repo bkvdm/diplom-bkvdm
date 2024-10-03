@@ -2,6 +2,7 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.AdReview;
 import ru.skypro.homework.model.Ad;
@@ -9,10 +10,10 @@ import ru.skypro.homework.model.Ad;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AdReviewMapper {
 
-    AdReviewMapper INSTANCE = Mappers.getMapper(AdReviewMapper.class);
+//    AdReviewMapper INSTANCE = Mappers.getMapper(AdReviewMapper.class);
 
     // Для преобразования Ad -> AdResult
     @Mapping(source = "user.id", target = "author")

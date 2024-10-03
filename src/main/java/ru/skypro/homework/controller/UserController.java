@@ -3,6 +3,7 @@ package ru.skypro.homework.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.Optional;
  * REST-контроллер для управления пользователями.
  * Обрабатывает запросы на обновление информации о пользователе, его пароля и аватара.
  */
+@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @Tag(name = "Пользователи")
 @RequestMapping("/users")
@@ -63,6 +65,12 @@ public class UserController {
     @PostMapping("/set_password")
     public ResponseEntity<String> setPassword(
             @RequestBody NewPassword newPassword) {
+
+        NewPassword onlyNewPassword = new NewPassword();
+        onlyNewPassword.setNewPassword(newPassword.getNewPassword());
+
+        // Вызов метода сервиса для обновления пароля
+        userService.updatePassword(onlyNewPassword);
         // TODO: Логика в методе класса сервиса для обновления пароля
         return ResponseEntity.ok("Password updated successfully.");
     }
@@ -72,7 +80,6 @@ public class UserController {
      *
      * @return информация о текущем авторизованном пользователе
      */
-    @CrossOrigin(value = "http://localhost:3000")
     @Operation(summary = "Получение информации об авторизованном пользователе",
             description = "Метод получения информации о зарегистрированном пользователе",
             responses = {
@@ -110,7 +117,9 @@ public class UserController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class))
             ) @RequestBody UserDto updateUser) {
-        // TODO: Логика в методе класса сервисаа для обновления информации о пользователе
+
+        userService.updateUser(updateUser);
+
         return ResponseEntity.ok(updateUser);
     }
 

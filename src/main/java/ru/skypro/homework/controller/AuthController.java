@@ -16,8 +16,8 @@ import ru.skypro.homework.service.AuthService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 
-@Slf4j
 @CrossOrigin(value = "http://localhost:3000")
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {

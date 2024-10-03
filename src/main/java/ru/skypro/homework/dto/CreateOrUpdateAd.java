@@ -1,6 +1,8 @@
 package ru.skypro.homework.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +17,11 @@ public class CreateOrUpdateAd {
     @Size(min = 4, max = 32, message = "The title of the ad must be between 4 and 32 characters")
     private String title;
 
+    //    @Schema(description = "Цена объявления")
+//    @Size(min = 0, max = 1000000, message = "The ad price must be between 0 and 1 000 000 values")
     @Schema(description = "Цена объявления")
-    @Size(min = 0, max = 1000000, message = "The ad price must be between 0 and 1 000 000 values")
+    @Min(value = 0, message = "The ad price must be greater than or equal to 0")
+    @Max(value = 1000000, message = "The ad price must be less than or equal to 1 000 000")
     private int price;
 
     @Schema(description = "Описание объявления")

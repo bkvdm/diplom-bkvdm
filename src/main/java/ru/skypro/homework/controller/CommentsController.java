@@ -21,6 +21,7 @@ import java.util.List;
  * REST-контроллер для управления комментариями.
  * Обрабатывает запросы на создание, обновление, удаление и получение комментариев.
  */
+@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @Tag(name = "Комментарии")
 @RequestMapping("/ads/{adId}/comments")
@@ -32,6 +33,7 @@ public class CommentsController {
      * @param adId идентификатор объявления, для которого нужно получить комментарии
      * @return список комментариев, связанных с объявлением
      */
+    @CrossOrigin(value = "http://localhost:3000")
     @Operation(summary = "Получение комментариев объявления",
             description = "Метод для получения комментариев к объявлению", tags = {"Комментарии"},
             responses = {
