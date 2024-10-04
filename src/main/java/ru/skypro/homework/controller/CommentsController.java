@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,9 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
-import ru.skypro.homework.model.Comment;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
+import ru.skypro.homework.service.ContentService;
 
 import java.util.List;
 
@@ -27,13 +28,18 @@ import java.util.List;
 @RequestMapping("/ads/{adId}/comments")
 public class CommentsController {
 
+    private final ContentService commentService;
+
+    public CommentsController(ContentService commentService) {
+        this.commentService = commentService;
+    }
+
     /**
      * Получает список комментариев, связанных с указанным объявлением.
      *
      * @param adId идентификатор объявления, для которого нужно получить комментарии
      * @return список комментариев, связанных с объявлением
      */
-    @CrossOrigin(value = "http://localhost:3000")
     @Operation(summary = "Получение комментариев объявления",
             description = "Метод для получения комментариев к объявлению", tags = {"Комментарии"},
             responses = {
@@ -42,11 +48,12 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @GetMapping
-    public ResponseEntity<List<CommentReview>> getComments(
+    public ResponseEntity<List<CommentReview.CommentResult>> getComments(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId) {
-        // TODO: Логика в классе сервиса для получения комментариев
-        return ResponseEntity.ok(List.of(new CommentReview()));
+        List<CommentReview.CommentResult> comments = commentService.getCommentsByAdId(adId);
+
+        return ResponseEntity.ok(comments);
     }
 
     /**
@@ -65,6 +72,7 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CommentReview.CommentResult> addComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
@@ -73,8 +81,8 @@ public class CommentsController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
-        // TODO: Логика в классе сервиса добавления комментария
-        return ResponseEntity.ok(new CommentReview.CommentResult());
+        CommentReview.CommentResult createdComment = commentService.addComment(adId, commentData);
+        return ResponseEntity.ok(createdComment);
     }
 
     /**
@@ -92,12 +100,13 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
             @Parameter(description = "Идентификатор комментария", required = true, example = "1")
             @PathVariable("commentId") long commentId) {
-        // TODO: Логика в классе сервиса (метода) для удаления комментария
+        commentService.deleteComment(adId, commentId);
         return ResponseEntity.ok().build();
     }
 
@@ -118,6 +127,7 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @PatchMapping("/{commentId}")
+    @PreAuthorize("hasRole('ADMIN') or #comment.user.id == principal.id")
     public ResponseEntity<CommentReview.CommentResult> updateComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
@@ -128,7 +138,7 @@ public class CommentsController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
-        // TODO: Логика в классе сервиса для обновления комментария
-        return ResponseEntity.ok(new CommentReview.CommentResult());
+        CommentReview.CommentResult updatedComment = commentService.updateComment(adId, commentId, commentData);
+        return ResponseEntity.ok(updatedComment);
     }
 }

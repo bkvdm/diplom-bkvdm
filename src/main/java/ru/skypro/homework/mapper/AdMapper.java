@@ -3,7 +3,6 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.model.Ad;
@@ -17,7 +16,8 @@ public interface AdMapper {
     @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "imageAdId", target = "imageAd.id")
     @Mapping(source = "title", target = "title")
-    @Mapping(target = "id", ignore = true) // Игнорирование поля id
+    @Mapping(target = "id", ignore = true)
+    // Игнорирование поля id
     Ad toEntity(CreateOrUpdateAd dto);
 
     // Для преобразования Ad -> CreateOrUpdateAd

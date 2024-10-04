@@ -2,6 +2,7 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.model.Comment;
@@ -9,10 +10,10 @@ import ru.skypro.homework.model.Comment;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CommentReviewMapper {
 
-    CommentReviewMapper INSTANCE = Mappers.getMapper(CommentReviewMapper.class);
+//    CommentReviewMapper INSTANCE = Mappers.getMapper(CommentReviewMapper.class);
 
     // Для преобразования Comment -> CommentResult
     @Mapping(source = "user.id", target = "author")

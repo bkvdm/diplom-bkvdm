@@ -14,6 +14,4 @@ public interface UserService {
     User getUserFromUserDtoExtend(UserDto userDto);
 
     Long getCurrentUserId();
-
-//    User getCurrentUserDirectly();
 }

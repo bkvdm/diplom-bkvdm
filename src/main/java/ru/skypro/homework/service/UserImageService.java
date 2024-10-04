@@ -6,7 +6,7 @@ import ru.skypro.homework.model.ImageUser;
 import java.io.IOException;
 
 public interface UserImageService {
-    void uploadUserImage (String userEmail, MultipartFile multipartFile) throws IOException;
+    void uploadUserImage(String userEmail, MultipartFile multipartFile) throws IOException;
 
     ImageUser findImageByUserId(long userId);
 }

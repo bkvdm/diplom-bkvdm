@@ -9,5 +9,7 @@ import java.io.IOException;
 public interface AdImageService {
     void uploadAdImage(Ad ad, MultipartFile multipartFile) throws IOException;
 
+    void renewImageAdByIdAd(long idAd, MultipartFile multipartFile) throws IOException;
+
     ImageAd findImageByAdId(long adId);
 }

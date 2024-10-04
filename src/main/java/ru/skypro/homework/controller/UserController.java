@@ -3,7 +3,6 @@ package ru.skypro.homework.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 import ru.skypro.homework.service.UserImageService;
 import ru.skypro.homework.service.UserService;
@@ -36,15 +32,11 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final UserImageService userImageService;
 
-    public UserController(UserService userService, AuthService authService, UserRepository userRepository, UserMapper userMapper, UserImageService userImageService) {
+    public UserController(UserService userService, AuthService authService, UserImageService userImageService) {
         this.userService = userService;
         this.authService = authService;
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
         this.userImageService = userImageService;
     }
 
@@ -141,7 +133,6 @@ public class UserController {
     public ResponseEntity<String> updateUserImage(
 //            @Parameter(name = "id", description = "Идентификатор пользователя", required = true, example = "1") @PathVariable("id") long id,
             @Parameter(name = "image", description = "Файл аватара в формате multipart", required = true) @RequestParam("image") MultipartFile image) throws IOException {
-        // TODO: Логика в методе класса обновления аватара
         Optional<String> userEmailOptional = authService.getCurrentUserEmail();
 
         if (userEmailOptional.isPresent()) {

@@ -40,6 +40,23 @@ public class UserImageServiceImpl implements UserImageService {
         this.imageUserRepository = imageUserRepository;
     }
 
+    /**
+     * Загружает изображение пользователя и сохраняет его на сервере.
+     *
+     * <p>Метод принимает адрес электронной почты пользователя и файл изображения в формате
+     * {@code MultipartFile}. Он проверяет, авторизован ли пользователь, а также
+     * валиден ли тип загружаемого файла. В случае успешной проверки, файл
+     * сохраняется на сервере, а информация о пользователе и изображении
+     * обновляется в базе данных. Если происходит ошибка на любом этапе,
+     * выбрасываются соответствующие исключения.</p>
+     *
+     * @param userEmail     адрес электронной почты пользователя, для которого загружается изображение
+     * @param multipartFile файл изображения, который нужно загрузить
+     * @throws IOException              если произошла ошибка при сохранении файла
+     * @throws NoSuchElementException   если пользователь не авторизован или не найден в базе данных
+     * @throws IllegalArgumentException если тип файла не соответствует требованиям
+     * @throws IllegalStateException    если тип содержимого файла равен {@code null}
+     */
     @Override
     public void uploadUserImage(String userEmail, MultipartFile multipartFile) throws IOException {
 
@@ -91,6 +108,16 @@ public class UserImageServiceImpl implements UserImageService {
         imageUserRepository.save(imageUser);
     }
 
+    /**
+     * Находит изображение пользователя по его идентификатору.
+     *
+     * <p>Метод ищет изображение, связанное с пользователем, по его уникальному
+     * идентификатору. Если изображение не найдено, возвращается новый экземпляр
+     * {@code ImageUser}.</p>
+     *
+     * @param userId идентификатор пользователя, для которого нужно найти изображение
+     * @return объект {@code ImageUser}, содержащий информацию об изображении пользователя
+     */
     @Override
     public ImageUser findImageByUserId(long userId) {
         return imageUserRepository.findByUserId(userId).orElse(new ImageUser());

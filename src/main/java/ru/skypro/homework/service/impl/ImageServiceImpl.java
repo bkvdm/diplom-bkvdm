@@ -85,32 +85,26 @@ public class ImageServiceImpl implements ImageService {
                 .body(data);
     }
 
-//    @Override
-//    public ResponseEntity<byte[]> getImageAdResponse(long idImage) {
-//
-//        Optional<ImageAd> imageAd = imageAdRepository.findByAdId(idImage);
-//
-//        if (imageAd.isEmpty()) {
-//            throw new NoSuchElementException("The image ad not found with id: " + idImage);
-//        }
-//
-//        ImageDto imageDto = getImageAdDto(imageAd.get());
-//
-//        MediaType mediaType = MediaType.parseMediaType(imageDto.getMediaType());
-//        String fileName = imageDto.getFilePath();
-//        byte[] data = imageDto.getDataForm();
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
-//                .contentType(mediaType)
-//                .body(data);
-//    }
-//}
-
-
+    /**
+     * Получает изображение объявления в виде массива байтов для отображения.
+     *
+     * <p>Метод ищет изображение по идентификатору объявления. Если изображение
+     * найдено, оно загружается и возвращается в ответе как массив байтов с
+     * соответствующим заголовком для отображения. В случае, если изображение
+     * не найдено, выбрасывается {@code NoSuchElementException}.</p>
+     *
+     * @param idImage идентификатор объявления, для которого нужно получить изображение
+     * @return {@code ResponseEntity<byte[]>} содержащий изображение в виде массива байтов,
+     * с заголовком {@code Content-Disposition} для отображения файла и
+     * соответствующим типом контента
+     * @throws NoSuchElementException если изображение объявления не найдено по указанному идентификатору
+     * @throws RuntimeException       если произошла ошибка при чтении файла изображения
+     */
     @Override
     public ResponseEntity<byte[]> getImageAdResponse(long idImage) {
         Optional<ImageAd> imageAd = imageAdRepository.findByAdId(idImage);
+
+//        Optional<ImageAd> imageAd = imageAdRepository.findByAdId(idImage);
 
         if (imageAd.isEmpty()) {
             throw new NoSuchElementException("The image ad not found with id: " + idImage);
@@ -133,25 +127,3 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 }
-
-
-//...
-//    @Override
-//    public Optional<ImageDto> getAvatarByEmail(String userEmail) {
-//        Optional<User> userOptional = userRepository.findByEmail(userEmail);
-//
-//        if (userOptional.isEmpty()) {
-//            throw new NoSuchElementException("The user is not: authorized or registered" + userEmail);
-//        }
-//
-//        Optional<ImageUser> imageUser = imageUserRepository.findByUserId(userOptional.get().getId());
-//
-//        if (imageUser.isEmpty()) {
-//            throw new NoSuchElementException("The image not found from user by username: " + userEmail);
-//        }
-//
-//        ImageDto imageDto = getImageUserDto(imageUser.get());
-//
-//        return Optional.of(imageDto);
-//    }
-//...

@@ -16,15 +16,17 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdReview;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.mapper.AdReviewMapper;
 import ru.skypro.homework.model.Ad;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
+import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AdService;
-import ru.skypro.homework.service.impl.AdServiceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * REST-контроллер для управления объявлениями.
@@ -37,9 +39,13 @@ import java.util.List;
 public class AdsController {
 
     private final AdService adService;
+    private final AdReviewMapper adReviewMapper;
+    private final AdImageService adImageService;
 
-    public AdsController(AdService adService) {
+    public AdsController(AdService adService, AdReviewMapper adReviewMapper, AdImageService adImageService) {
         this.adService = adService;
+        this.adReviewMapper = adReviewMapper;
+        this.adImageService = adImageService;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(AdsController.class);
@@ -95,6 +101,27 @@ public class AdsController {
     }
 
     /**
+     * Удаление объявления по его идентификатору.
+     *
+     * @param id идентификатор объявления.
+     * @return пустой ответ с кодом 204.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Удаление объявления",
+            description = "Метод для удаления объявления", tags = {"Объявления"},
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Объявление успешно удалено"),
+                    @ApiResponse(responseCode = "404", description = "Объявление не найдено", content = @Content),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+            })
+    @DeleteMapping("/{id}")
+    @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
+    public ResponseEntity<Void> deleteAd(@PathVariable("id") long id) {
+        adService.deleteAd(id);
+        return ResponseEntity.noContent().build(); // Возвращаем ответ 204 No Content
+    }
+
+    /**
      * Получение информации об объявлении по его идентификатору.
      *
      * @param id идентификатор объявления.
@@ -110,28 +137,8 @@ public class AdsController {
     @GetMapping("/{id}")
     @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
     public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") long id) {
-        // TODO: Дополнить логику получения объявления по значению id объявления
-        return ResponseEntity.ok(new ExtendedAd());
-    }
-
-    /**
-     * Удаление объявления по его идентификатору.
-     *
-     * @param id идентификатор объявления.
-     * @return пустой ответ с кодом 204.
-     */
-    @Operation(summary = "Удаление объявления",
-            description = "Метод для удаления объявления", tags = {"Объявления"},
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Объявление успешно удалено"),
-                    @ApiResponse(responseCode = "404", description = "Объявление не найдено", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
-            })
-    @DeleteMapping("/{id}")
-    @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
-    public ResponseEntity<Void> deleteAd(@PathVariable("id") long id) {
-        // TODO: Дополнить логику удаления объявления по значению идентификатора
-        return ResponseEntity.noContent().build();
+        ExtendedAd ad = adService.getAdById(id);
+        return ResponseEntity.ok(ad);
     }
 
     /**
@@ -141,6 +148,7 @@ public class AdsController {
      * @param updateData обновленные данные объявления.
      * @return обновленное объявление.
      */
+    @PreAuthorize("isAuthenticated() and @userService.getCurrentUserId() == @adService.getAdAuthorId(#id)")
     @Operation(summary = "Обновление информации об объявлении",
             description = "Метод обновления информации об объявлении", tags = {"Объявления"},
             responses = {
@@ -158,8 +166,9 @@ public class AdsController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateAd.class))
             ) @RequestBody CreateOrUpdateAd updateData) {
-        // TODO: Дополнить логику обновления объявления по значению id объявления
-        return ResponseEntity.ok(new AdReview.AdResult());
+        Ad updatedAd = adService.updateAd(id, updateData);
+        AdReview.AdResult result = adReviewMapper.toAdResult(updatedAd);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -177,14 +186,7 @@ public class AdsController {
     @GetMapping("/me")
     public ResponseEntity<AdReview> getAllAdsMe() {
         List<AdReview.AdResult> adResults = new ArrayList<>();
-//        adResults.add(new AdReview.AdResult());
-
-//        AdReview response = new AdReview();
-//        response.setCount(adResults.size());
-//        response.setResults(adResults);
-
         AdReview adReview = adService.getAllAdsForCurrentUser();
-
         return ResponseEntity.ok(adReview);
     }
 
@@ -204,10 +206,19 @@ public class AdsController {
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
             })
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated() and @userService.getCurrentUserId() == @adService.getAdAuthorId(#id)")
     public ResponseEntity<String> updateImage(
             @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1") @PathVariable("id") long id,
             @Parameter(name = "file", description = "Файл картинки в формате multipart", required = true) @RequestParam("image") MultipartFile image) {
-        // TODO: Дополнить логику обновления картинки объявления по id объявления
-        return ResponseEntity.ok("Image updated successfully.");
+        try {
+            adImageService.renewImageAdByIdAd(id, image);
+            return ResponseEntity.ok("Image updated successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Объявление не найдено.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Внутренняя ошибка сервера: " + e.getMessage());
+        }
     }
 }

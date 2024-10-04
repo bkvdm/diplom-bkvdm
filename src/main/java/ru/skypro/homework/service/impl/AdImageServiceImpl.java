@@ -10,14 +10,14 @@ import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.ImageAdRepository;
 import ru.skypro.homework.service.AdImageService;
+import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.utility.FileTypeMatchingService;
 import ru.skypro.homework.utility.FileUtilityService;
 
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
@@ -27,6 +27,7 @@ public class AdImageServiceImpl implements AdImageService {
     private final FileUtilityService fileUtilityService;
     private final ImageAdRepository imageAdRepository;
     private final AdRepository adRepository;
+    private final UserService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(AdImageService.class);
 
@@ -34,11 +35,12 @@ public class AdImageServiceImpl implements AdImageService {
     private String imageAdDir;
 
 
-    public AdImageServiceImpl(FileTypeMatchingService fileTypeMatchingService, FileUtilityService fileUtilityService, ImageAdRepository imageAdRepository, AdRepository adRepository) {
+    public AdImageServiceImpl(FileTypeMatchingService fileTypeMatchingService, FileUtilityService fileUtilityService, ImageAdRepository imageAdRepository, AdRepository adRepository, UserService userService) {
         this.fileTypeMatchingService = fileTypeMatchingService;
         this.fileUtilityService = fileUtilityService;
         this.imageAdRepository = imageAdRepository;
         this.adRepository = adRepository;
+        this.userService = userService;
     }
 
     /**
@@ -95,6 +97,17 @@ public class AdImageServiceImpl implements AdImageService {
 
         adSave.setImageAd(imageAd);
         logger.info("Set image with id: ({}) on ad with id: ({}).", imageAd.getId(), adSave.getId());
+    }
+
+    @Override
+    public void renewImageAdByIdAd(long idAd, MultipartFile multipartFile) throws IOException {
+        Ad ad = adRepository.findById(idAd)
+                .orElseThrow(() -> new NoSuchElementException("Ad with id " + idAd + ", not found."));
+
+        Long currentUserId = userService.getCurrentUserId();
+        logger.info("Current user found id: {}", currentUserId);
+
+        uploadAdImage(ad, multipartFile);
     }
 
 

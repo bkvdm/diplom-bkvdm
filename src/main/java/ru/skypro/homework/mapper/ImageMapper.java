@@ -3,7 +3,6 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.ImageDto;
 import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.ImageUser;

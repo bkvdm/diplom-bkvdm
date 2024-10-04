@@ -3,18 +3,11 @@ package ru.skypro.homework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
-import ru.skypro.homework.dto.Role;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -32,7 +25,7 @@ public class WebSecurityConfig {
             "/swagger-resources/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/v3/api-docs",
+            "/v3/api-docs/**",
             "/webjars/**",
             "/login",
             "/register",
@@ -46,7 +39,9 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Collections.singletonList("*")); // Для теста: разрешение всех источников
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+//            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000")); // Используем allowedOriginPatterns
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "method"));
         configuration.setAllowCredentials(true);
@@ -67,8 +62,8 @@ public class WebSecurityConfig {
                 )
                 .httpBasic(withDefaults()) // Используем базовую HTTP-аутентификацию
                 .headers(headers -> headers
-                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("default-src 'self'; script-src 'self' https://trustedscripts.example.com"))
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin) // Защита от Clickjacking
+//                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("default-src 'self'; script-src 'self' https://trustedscripts.example.com")) // Временно убран, в целях тестирования
+                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin) // Защита от Clickjacking
                 );
         return http.build();
     }
@@ -76,10 +71,5 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    public void configure(WebSecurity web) throws Exception {
-        // Игнорирование запросов к папкам с изображениями
-        web.ignoring().requestMatchers("/avatar_user/**", "/image_ad/**");
     }
 }

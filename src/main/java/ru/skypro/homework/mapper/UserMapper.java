@@ -3,19 +3,11 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
-import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.model.ImageUser;
 import ru.skypro.homework.model.User;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
