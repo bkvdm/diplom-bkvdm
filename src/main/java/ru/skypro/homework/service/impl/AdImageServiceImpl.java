@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class AdImageServiceImpl implements AdImageService {
@@ -76,8 +77,21 @@ public class AdImageServiceImpl implements AdImageService {
             throw new IOException("Error saving the file", e);
         }
 
-        ImageAd imageAd = new ImageAd();
-        imageAd.setAd(adSave);
+        // Проверяем, существует ли изображение для этого объявления
+        Optional<ImageAd> existingImageAd = imageAdRepository.findByAdId(adSave.getId());
+
+        ImageAd imageAd;
+        if (existingImageAd.isPresent()) {
+            // Если изображение существует, обновляем его
+            imageAd = existingImageAd.get();
+            logger.info("Updating existing image for ad id: {}", adSave.getId());
+        } else {
+            // Если изображение не существует, создаем новое
+            imageAd = new ImageAd();
+            imageAd.setAd(adSave);
+            logger.info("Creating new image for ad id: {}", adSave.getId());
+        }
+
         imageAd.setFilePath("/" + filePath.toString().replace(File.separator, "/"));
         imageAd.setFileSize(multipartFile.getSize());
 
@@ -109,40 +123,6 @@ public class AdImageServiceImpl implements AdImageService {
 
         uploadAdImage(ad, multipartFile);
     }
-
-
-//    @Override
-//    public void uploadAdImage(Ad ad, MultipartFile multipartFile) throws IOException {
-//        if (!fileTypeMatchingService.isValidImage(multipartFile)) {
-//            throw new IllegalArgumentException("Invalid file type. Please upload an image file.");
-//        }
-//
-//        Path filePath = Path.of(imageAdDir, ad.getUser().getId() + "_" + ad.getUser().getEmail() + "_" + LocalDateTime.now() + "." + fileUtilityService.getExtensions(Objects.requireNonNull(multipartFile.getOriginalFilename())));
-//
-//        try {
-//            fileUtilityService.saveFile(multipartFile, filePath);
-//        } catch (IOException e) {
-//            throw new IOException("Error saving the file", e);
-//        }
-//
-////        ImageAd imageAd = findImageByAdId(ad.getId());
-//        ImageAd imageAd = new ImageAd();
-//
-//        imageAd.setFilePath("/" + filePath.toString().replace(File.separator, "/"));
-//        imageAd.setFileSize(multipartFile.getSize());
-//
-//        String contentType = multipartFile.getContentType();
-//        if (contentType == null) {
-//            throw new IllegalStateException("Content type of file is null");
-//        }
-//
-//        imageAd.setMediaType(contentType);
-//        imageAd.setDataForm(fileUtilityService.generateFileForDataBase(filePath, 600));
-//        imageAd.setAd(ad);
-//        imageAdRepository.save(imageAd);
-//        ad.setImageAd(imageAd);
-//        adRepository.save(ad);
-//    }
 
     /**
      * Находит изображение, связанное с объявлением по его идентификатору.

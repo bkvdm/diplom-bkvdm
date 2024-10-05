@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.NewPassword;
+import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.model.ImageUser;
@@ -93,6 +94,19 @@ public class UserServiceImpl implements UserService {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         return userRepository.findByEmail(username)
                 .map(User::getId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found or not authenticated: " + username));
+    }
+
+    /**
+     * Проверяет, является ли текущий пользователь администратором.
+     *
+     * @return true, если текущий пользователь имеет роль ADMIN, иначе false.
+     */
+    @Override
+    public boolean isCurrentUserAdmin() {
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        return userRepository.findRoleByEmail(username)
+                .map(role -> role.equals(Role.ADMIN))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found or not authenticated: " + username));
     }
 }

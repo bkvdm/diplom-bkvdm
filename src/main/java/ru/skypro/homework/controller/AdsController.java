@@ -71,33 +71,37 @@ public class AdsController {
     }
 
     /**
-     * Добавление нового объявления.
+     * Эндпоинт для создания нового объявления.
+     * <p>
+     * Этот метод принимает данные для нового объявления, включая его свойства и изображение.
+     * Данные передаются в формате multipart/form-data.
+     * После успешного создания объявления возвращается объект {@link Ad}, содержащий информацию
+     * об объявлении, включая автора, ссылку на изображение, ID, цену и заголовок.
+     * </p>
      *
-     * @param image        (необязательно) изображение для объявления.
-     * @param adProperties свойства нового объявления, переданные через форму.
-     * @return созданное объявление.
+     * @param properties Свойства нового объявления, переданные через форму. Поля включают заголовок, описание и цену.
+     * @param image      Изображение для объявления (обязательный параметр). Изображение будет загружено и связано с объявлением.
+     * @return {@link ResponseEntity}, содержащее объект {@link Ad} с данными созданного объявления.
+     * В случае успеха возвращается статус 201 CREATED.
+     * @throws IOException если произошла ошибка при загрузке изображения.
      */
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Добавление объявления",
-            description = "Метод для добавления объявления", tags = {"Объявления"},
+            description = "Метод для добавления нового объявления. Возвращает информацию о созданном объявлении.",
+            tags = {"Объявления"},
             responses = {
                     @ApiResponse(responseCode = "201", description = "Объявление успешно добавлено"),
-                    @ApiResponse(responseCode = "400", description = "Некорректные входные данные", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера", content = @Content)
+                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
+                    @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
             })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdReview.AdResult> addAd(
-            @RequestPart(value = "properties") @Valid CreateOrUpdateAd adProperties,
-            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
-//            @ModelAttribute @Valid CreateOrUpdateAd adProperties,
-//            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+            @RequestPart("properties") CreateOrUpdateAd properties,
+            @RequestPart("image") MultipartFile image) throws IOException {
 
-        logger.info("Sending file: {}", image != null ? image.getSize() : "No file uploaded");
-        logger.info("Ad properties: {}", adProperties.getTitle());
+        AdReview.AdResult createdAd = adService.addingAd(properties, image);
 
-        adService.addingAd(adProperties, image);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AdReview.AdResult());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAd);
     }
 
     /**
@@ -118,7 +122,7 @@ public class AdsController {
     @Parameter(name = "id", description = "Идентификатор объявления", required = true, example = "1")
     public ResponseEntity<Void> deleteAd(@PathVariable("id") long id) {
         adService.deleteAd(id);
-        return ResponseEntity.noContent().build(); // Возвращаем ответ 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
     /**

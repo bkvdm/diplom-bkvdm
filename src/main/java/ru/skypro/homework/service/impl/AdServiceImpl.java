@@ -7,10 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import ru.skypro.homework.dto.AdReview;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.dto.ExtendedAd;
-import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.mapper.AdReviewMapper;
 import ru.skypro.homework.model.Ad;
@@ -46,15 +43,21 @@ public class AdServiceImpl implements AdService {
     private static final Logger logger = LoggerFactory.getLogger(AdServiceImpl.class);
 
     @Override
-    public void addingAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile multipartFile) throws IOException {
+    public AdReview.AdResult addingAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile multipartFile) throws IOException {
         logger.info("Object createOrUpdateAd, contains: {}", createOrUpdateAd.getDescription());
         logger.info("Object file in service method: {}", multipartFile.getSize());
 
         logger.info("Ad Title: {}", createOrUpdateAd.getTitle());
         logger.info("Ad Description: {}", createOrUpdateAd.getDescription());
 
+        // Проверка, что заголовок объявления не пустой
         if (createOrUpdateAd.getTitle() == null || createOrUpdateAd.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be null or empty");
+        }
+
+        // Проверка, что изображение не пустое
+        if (multipartFile.isEmpty()) {
+            throw new IllegalArgumentException("Image file cannot be null or empty");
         }
 
         UserDto userDto = userService.getCurrentUser();
@@ -67,21 +70,20 @@ public class AdServiceImpl implements AdService {
                 .user(user)
                 .build();
 
-        logger.info("User into ad email {}, id user {}", user.getEmail(), user.getId());
-        logger.info("Ad info with user set: id {}, title {}", ad.getId(), ad.getTitle());
-
-        logger.info("Ad to be saved: id={}, title={}, description={}, userId={}",
-                ad.getId(),
-                ad.getTitle(),
-                ad.getDescription(),
-                ad.getUser() != null ? ad.getUser().getId() : "null");
-
         Ad savedAd = adRepository.save(ad);
-        logger.info("Ad save info, id Ad: {}, user: {}", savedAd.getId(), savedAd.getUser());
 
         if (!multipartFile.isEmpty()) {
             adImageService.uploadAdImage(savedAd, multipartFile);
         }
+
+        AdReview.AdResult adResult = new AdReview.AdResult();
+        adResult.setAuthor(user.getId());
+        adResult.setImage(savedAd.getImageAd() != null ? savedAd.getImageAd().getFilePath() : null);  // Проверка на наличие картинки
+        adResult.setPk(savedAd.getId());
+        adResult.setPrice(savedAd.getPrice());
+        adResult.setTitle(savedAd.getTitle());
+
+        return adResult;
     }
 
     /**
@@ -124,7 +126,7 @@ public class AdServiceImpl implements AdService {
     }
 
     /**
-     * Удаление объявления по его идентификатору.
+     * Удаление объявления по его идентификатору, пользователем являющимся автором объявления или имеющими роль ADMIN.
      *
      * @param idAd идентификатор объявления.
      * @throws EntityNotFoundException если объявление не найдено.
@@ -133,6 +135,8 @@ public class AdServiceImpl implements AdService {
     @Override
     @Transactional
     public void deleteAd(long idAd) {
+        long currentUserId = userService.getCurrentUserId();
+        logger.info("Found current user, with id: {}", currentUserId);
 
         long userId = userService.getCurrentUserId();
         logger.info("Found current user, with id: {}", userId);
@@ -141,19 +145,22 @@ public class AdServiceImpl implements AdService {
 
         logger.info("Find ad with id: {}", ad.getId());
 
-        if (ad.getUser().getId() != userId) {
+        boolean isAdmin = userService.isCurrentUserAdmin();
+
+        if (!isAdmin && ad.getUser().getId() != currentUserId) {
             throw new AccessDeniedException("У вас нет прав для удаления этого объявления");
         }
 
         try {
             adRepository.delete(ad);
+            logger.info("Deleted ad with id: {}", ad.getId());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка при удалении объявления", e);
         }
     }
 
     /**
-     * Обновление объявления по его идентификатору.
+     * Обновление объявления по его идентификатору учитывая роль пользователя с правами ADMIN.
      *
      * @param id         идентификатор объявления.
      * @param updateData обновленные данные объявления.
@@ -166,7 +173,10 @@ public class AdServiceImpl implements AdService {
         Ad existingAd = adRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Объявление с идентификатором " + id + " не найдено."));
 
-        if (existingAd.getUser().getId() != userService.getCurrentUserId()) {
+        boolean isAdmin = userService.isCurrentUserAdmin();
+        long currentUserId = userService.getCurrentUserId();
+
+        if (!isAdmin && existingAd.getUser().getId() != currentUserId) {
             throw new AccessDeniedException("У вас нет прав для обновления этого объявления");
         }
 

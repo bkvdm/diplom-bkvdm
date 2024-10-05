@@ -84,46 +84,4 @@ public class ImageServiceImpl implements ImageService {
                 .contentType(mediaType)
                 .body(data);
     }
-
-    /**
-     * Получает изображение объявления в виде массива байтов для отображения.
-     *
-     * <p>Метод ищет изображение по идентификатору объявления. Если изображение
-     * найдено, оно загружается и возвращается в ответе как массив байтов с
-     * соответствующим заголовком для отображения. В случае, если изображение
-     * не найдено, выбрасывается {@code NoSuchElementException}.</p>
-     *
-     * @param idImage идентификатор объявления, для которого нужно получить изображение
-     * @return {@code ResponseEntity<byte[]>} содержащий изображение в виде массива байтов,
-     * с заголовком {@code Content-Disposition} для отображения файла и
-     * соответствующим типом контента
-     * @throws NoSuchElementException если изображение объявления не найдено по указанному идентификатору
-     * @throws RuntimeException       если произошла ошибка при чтении файла изображения
-     */
-    @Override
-    public ResponseEntity<byte[]> getImageAdResponse(long idImage) {
-        Optional<ImageAd> imageAd = imageAdRepository.findByAdId(idImage);
-
-//        Optional<ImageAd> imageAd = imageAdRepository.findByAdId(idImage);
-
-        if (imageAd.isEmpty()) {
-            throw new NoSuchElementException("The image ad not found with id: " + idImage);
-        }
-
-        ImageDto imageDto = getImageAdDto(imageAd.get());
-
-        String filePath = imageDto.getFilePath();
-        MediaType mediaType = MediaType.parseMediaType(imageDto.getMediaType());
-        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1); // Извлекаем имя файла из пути
-
-        try {
-            byte[] data = Files.readAllBytes(Paths.get(filePath)); // Чтение содержимого файла
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
-                    .contentType(mediaType)
-                    .body(data);
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading image file: " + filePath, e);
-        }
-    }
 }

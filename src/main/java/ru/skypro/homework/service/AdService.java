@@ -10,7 +10,8 @@ import ru.skypro.homework.model.Ad;
 import java.io.IOException;
 
 public interface AdService {
-    void addingAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile multipartFile) throws IOException;
+
+    AdReview.AdResult addingAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile multipartFile) throws IOException;
 
     AdReview getAllAds();
 

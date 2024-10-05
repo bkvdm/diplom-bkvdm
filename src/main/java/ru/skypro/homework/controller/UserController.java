@@ -61,9 +61,7 @@ public class UserController {
         NewPassword onlyNewPassword = new NewPassword();
         onlyNewPassword.setNewPassword(newPassword.getNewPassword());
 
-        // Вызов метода сервиса для обновления пароля
         userService.updatePassword(onlyNewPassword);
-        // TODO: Логика в методе класса сервиса для обновления пароля
         return ResponseEntity.ok("Password updated successfully.");
     }
 
@@ -131,7 +129,6 @@ public class UserController {
             })
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateUserImage(
-//            @Parameter(name = "id", description = "Идентификатор пользователя", required = true, example = "1") @PathVariable("id") long id,
             @Parameter(name = "image", description = "Файл аватара в формате multipart", required = true) @RequestParam("image") MultipartFile image) throws IOException {
         Optional<String> userEmailOptional = authService.getCurrentUserEmail();
 
