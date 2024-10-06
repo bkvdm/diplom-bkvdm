@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Создание таблицы пользователей -->
+    <changeSet id="1" author="bkvdm">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE users (
+            id_user BIGSERIAL PRIMARY KEY,
+            email_user VARCHAR(255) NOT NULL,
+            first_name VARCHAR(255) NOT NULL,
+            last_name VARCHAR(255) NOT NULL,
+            phone_user VARCHAR(20) NOT NULL,
+            role_user VARCHAR(50) NOT NULL,
+            password VARCHAR(255) NOT NULL
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Создание таблицы объявлений -->
+    <changeSet id="2" author="bkvdm">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ads"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE ads (
+            id_ad BIGSERIAL PRIMARY KEY,
+            text_title VARCHAR(255) NOT NULL,
+            price INT NOT NULL,
+            text_description TEXT NOT NULL,
+            id_user BIGINT NOT NULL,
+            FOREIGN KEY (id_user) REFERENCES users (id_user)
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Создание таблицы комментариев -->
+    <changeSet id="3" author="bkvdm">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="comments"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE comments (
+            id_comment BIGSERIAL PRIMARY KEY,
+            created_at TIMESTAMP NOT NULL,
+            text_comment TEXT NOT NULL,
+            id_user BIGINT NOT NULL,
+            id_ad BIGINT NOT NULL,
+            FOREIGN KEY (id_user) REFERENCES users (id_user),
+            FOREIGN KEY (id_ad) REFERENCES ads (id_ad)
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Создание таблицы изображений объявлений -->
+    <changeSet id="4" author="bkvdm">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="image_ads"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE image_ads (
+            id_image_ad BIGSERIAL PRIMARY KEY,
+            file_path VARCHAR(255),
+            file_size BIGINT,
+            media_type VARCHAR(50),
+            data_image BYTEA,
+            id_ad BIGINT UNIQUE NOT NULL,
+            FOREIGN KEY (id_ad) REFERENCES ads (id_ad)
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Создание таблицы изображений пользователей -->
+    <changeSet id="5" author="bkvdm">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="image_users"/>
+            </not>
+        </preConditions>
+        <sql>
+            CREATE TABLE image_users (
+            id_image_user BIGSERIAL PRIMARY KEY,
+            file_path VARCHAR(255),
+            file_size BIGINT,
+            media_type VARCHAR(50),
+            data_image BYTEA,
+            id_user BIGINT UNIQUE NOT NULL,
+            FOREIGN KEY (id_user) REFERENCES users (id_user)
+            );
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
