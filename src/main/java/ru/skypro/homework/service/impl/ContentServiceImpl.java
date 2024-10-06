@@ -1,10 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.dto.CommentReview;
-import ru.skypro.homework.dto.CreateOrUpdateComment;
-import ru.skypro.homework.dto.Role;
-import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.mapper.CommentReviewMapper;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
@@ -20,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ContentServiceImpl implements ContentService {
@@ -42,30 +38,32 @@ public class ContentServiceImpl implements ContentService {
     /**
      * Получает список комментариев для объявления по его идентификатору.
      *
-     * @param adId идентификатор объявления
-     * @return список объектов CommentReview.CommentResult
+     * <p>Метод возвращает список комментариев, связанных с конкретным объявлением.</p>
+     *
+     * @param adId идентификатор объявления, для которого требуется получить комментарии
+     * @return объект {@link CommentReview}, содержащий список комментариев в виде {@link CommentReview}
      * @throws NoSuchElementException если объявление с указанным id не найдено
      */
     @Override
-    public List<CommentReview.CommentResult> getCommentsByAdId(long adId) {
+    public CommentReview getCommentsByAdId(long adId) {
         List<Comment> comments = commentRepository.findByAdId(adId);
 
-        return comments.stream()
-                .map(commentReviewMapper::toCommentResult)
-                .collect(Collectors.toList());
+        return commentReviewMapper.toCommentReview(comments);
     }
 
     /**
      * Добавляет новый комментарий к объявлению.
-     * <p>
      *
-     * @param adId        идентификатор объявления
-     * @param commentData DTO с данными нового комментария
-     * @return созданный комментарий
-     * @throws NoSuchElementException если объявление не найдено
+     * <p>Этот метод позволяет авторизованным пользователям оставлять комментарии к существующим объявлениям.</p>
+     * <p>Комментарий создается от имени текущего пользователя, и время создания фиксируется автоматически.</p>
+     *
+     * @param adId        идентификатор объявления, к которому добавляется комментарий
+     * @param commentData DTO с данными нового комментария (текст)
+     * @return созданный комментарий, представлен в виде объекта {@link CommentResult}
+     * @throws NoSuchElementException если объявление или пользователь не найдены
      */
     @Override
-    public CommentReview.CommentResult addComment(long adId, CreateOrUpdateComment commentData) {
+    public CommentResult addComment(long adId, CreateOrUpdateComment commentData) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new NoSuchElementException("Объявление с id " + adId + " не найдено"));
 
@@ -100,12 +98,12 @@ public class ContentServiceImpl implements ContentService {
      * @param adId        идентификатор объявления, к которому относится комментарий
      * @param commentId   идентификатор комментария, который нужно обновить
      * @param commentData данные для обновления комментария в формате {@link CreateOrUpdateComment}
-     * @return объект {@link CommentReview.CommentResult}, представляющий обновленный комментарий
+     * @return объект {@link CommentResult}, представляющий обновленный комментарий
      * @throws NoSuchElementException если объявление или комментарий не найдены
      * @throws AccessDeniedException  если текущий пользователь не имеет прав на обновление данного комментария
      */
     @Override
-    public CommentReview.CommentResult updateComment(long adId, long commentId, CreateOrUpdateComment commentData) {
+    public CommentResult updateComment(long adId, long commentId, CreateOrUpdateComment commentData) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new NoSuchElementException("Объявление с id " + adId + " не найдено"));
 
@@ -132,9 +130,13 @@ public class ContentServiceImpl implements ContentService {
      * Пользователи с ролью {@code USER} могут удалять только свои комментарии,
      * которые они создали.</p>
      *
+     * <p>Если текущий пользователь с ролью {@code USER} пытается удалить чужой комментарий,
+     * выбрасывается {@link SecurityException}.</p>
+     *
      * @param adId      идентификатор объявления, к которому относится комментарий
      * @param commentId идентификатор комментария, который нужно удалить
      * @throws NoSuchElementException если комментарий или объявление не найдено
+     * @throws SecurityException      если пользователь не имеет прав на удаление данного комментария
      */
     @Override
     public void deleteComment(long adId, long commentId) {

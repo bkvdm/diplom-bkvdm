@@ -3,6 +3,7 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.model.Ad;
@@ -10,7 +11,7 @@ import ru.skypro.homework.model.Ad;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AdMapper {
 
-//    AdMapper INSTANCE = Mappers.getMapper(AdMapper.class);
+    AdMapper INSTANCE = Mappers.getMapper(AdMapper.class);
 
     // Для преобразования CreateOrUpdateAd -> Ad
     @Mapping(source = "userId", target = "user.id")

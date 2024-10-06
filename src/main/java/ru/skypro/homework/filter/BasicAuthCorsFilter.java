@@ -10,6 +10,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Фильтр для обработки запросов и управления CORS.
+ * <p>
+ * Этот компонент добавляет заголовок, позволяющий кросс-доменные запросы,
+ * разрешая обмен данными между клиентом и сервером с включением
+ * учетных данных.
+ * </p>
+ */
 @Component
 public class BasicAuthCorsFilter extends OncePerRequestFilter {
 

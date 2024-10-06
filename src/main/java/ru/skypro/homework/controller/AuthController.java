@@ -16,6 +16,15 @@ import ru.skypro.homework.service.AuthService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 
+/**
+ * Контроллер для обработки запросов, связанных с авторизацией и регистрацией пользователей.
+ * <p>
+ * Данный контроллер предоставляет API для авторизации и регистрации пользователей в системе.
+ * Он использует аннотации Swagger для описания методов, что позволяет автоматизировать
+ * создание документации API. Все методы возвращают соответствующие коды состояния HTTP
+ * в зависимости от результата выполнения операций.
+ * </p>
+ */
 @CrossOrigin(value = "http://localhost:3000")
 @Slf4j
 @RestController

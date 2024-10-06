@@ -80,8 +80,6 @@ public class UserImageServiceImpl implements UserImageService {
             throw new IllegalArgumentException("Invalid file type. Please upload an image file.");
         }
 
-//        String idFileName = userOptional.map(Object::toString).orElse("defaultId");
-
         String idFileName = String.valueOf(userOptional.get().getId());
 
         Path filePath = Path.of(avatarUserDir, idFileName + "_" + userEmail.toUpperCase() + "." + fileUtilityService.getExtensions(Objects.requireNonNull(multipartFile.getOriginalFilename())));

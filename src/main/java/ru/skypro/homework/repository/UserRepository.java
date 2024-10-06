@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String username);
 
     /**
-     * Получает роль пользователя по идентификатора пользователя не передавая экземпляр User в целях безопасности.
+     * Получает роль пользователя по идентификатору пользователя не передавая экземпляр User в целях безопасности.
      */
     @Query("SELECT u.role FROM User u WHERE u.email = :email")
     Optional<Role> findRoleByEmail(@Param("email") String email);

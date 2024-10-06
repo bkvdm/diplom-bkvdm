@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 
 import java.util.Optional;
 
+/**
+ * Контроллер для работы с аватарами пользователей.
+ * <p>
+ * Этот контроллер предоставляет API для получения аватара текущего авторизованного пользователя.
+ * Все запросы к данному контроллеру требуют авторизации пользователя, и возвращают соответствующие
+ * коды состояния HTTP в зависимости от результата выполнения операций.
+ * </p>
+ */
+@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/avatar_user")
 public class AvatarController {

@@ -8,14 +8,14 @@ import ru.skypro.homework.mapper.ImageMapper;
 import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.ImageUser;
 import ru.skypro.homework.model.User;
-import ru.skypro.homework.repository.ImageAdRepository;
 import ru.skypro.homework.repository.ImageUserRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -28,14 +28,12 @@ public class ImageServiceImpl implements ImageService {
     private final ImageMapper imageMapper;
     private final UserRepository userRepository;
     private final ImageUserRepository imageUserRepository;
-    private final ImageAdRepository imageAdRepository;
 
     @Autowired
-    public ImageServiceImpl(ImageMapper imageMapper, UserRepository userRepository, ImageUserRepository imageUserRepository, ImageAdRepository imageAdRepository) {
+    public ImageServiceImpl(ImageMapper imageMapper, UserRepository userRepository, ImageUserRepository imageUserRepository) {
         this.imageMapper = imageMapper;
         this.userRepository = userRepository;
         this.imageUserRepository = imageUserRepository;
-        this.imageAdRepository = imageAdRepository;
     }
 
     public ImageDto getImageUserDto(ImageUser imageUser) {
@@ -83,5 +81,34 @@ public class ImageServiceImpl implements ImageService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .contentType(mediaType)
                 .body(data);
+    }
+
+    /**
+     * Получение изображения по пути к файлу.
+     *
+     * @param filePath путь к файлу изображения.
+     * @return массив байт изображения, если файл найден, или null, если файл не существует.
+     * @throws IOException в случае ошибок чтения файла.
+     */
+    @Override
+    public byte[] getImage(Path filePath) throws IOException {
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+
+        return Files.readAllBytes(filePath);
+    }
+
+    /**
+     * Определение MIME-типа файла по его пути.
+     *
+     * @param filePath путь к файлу.
+     * @return строка, представляющая MIME-тип файла, или "application/octet-stream", если тип не может быть определен.
+     * @throws IOException в случае ошибок при попытке определить тип.
+     */
+    @Override
+    public String getContentType(Path filePath) throws IOException {
+        String contentType = Files.probeContentType(filePath);
+        return (contentType != null) ? contentType : "application/octet-stream";
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -12,14 +12,16 @@ import org.springframework.http.HttpMethod;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+/**
+ * Конфигурация безопасности веб-приложения.
+ * <p>
+ * Данный класс настраивает параметры безопасности приложения, включая
+ * аутентификацию, разрешения для различных URL, а также настройки CORS.
+ * </p>
+ */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -39,82 +41,70 @@ public class WebSecurityConfig {
             "/image_ad/**",
             "/src/images/**",
             "/images/**"
-//            "/ads/**"
     };
 
+    /**
+     * Настраивает CORS (Cross-Origin Resource Sharing) для веб-приложения.
+     * <p>
+     * Позволяет запросы из браузера с определенного источника (в данном случае
+     * http://localhost:3000) к API приложения, разрешая определенные методы
+     * HTTP и заголовки.
+     * </p>
+     *
+     * @return объект WebMvcConfigurer с настроенными CORS.
+     */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Collections.singletonList("*")); // Для теста: разрешение всех источников
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000")); // Используем allowedOriginPatterns
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "method"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:3000")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
     }
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS настройки
-//                .csrf(csrf -> csrf.disable()) // Отключение CSRF
-//                .authorizeHttpRequests(authorization ->
-//                        authorization
-//                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем все OPTIONS запросы
-//                                .requestMatchers(AUTH_WHITELIST).permitAll() // Разрешаем публичные запросы
-//                                .requestMatchers("/ads/**", "/users/**").authenticated() // Остальные требуют аутентификации
-//                )
-//                .httpBasic(withDefaults()) // Используем базовую HTTP-аутентификацию
-//                .headers(headers -> headers
-//                        .addHeaderWriter(new ContentSecurityPolicyHeaderWriter("default-src 'self'; script-src 'self' https://trustedscripts.example.com")) // Временно убран, в целях тестирования
-////                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin) // Защита от Clickjacking
-//                );
-//        return http.build();
-//    }
-
+    /**
+     * Конфигурирует цепочку фильтров безопасности.
+     * <p>
+     * Настраивает параметры аутентификации и авторизации для
+     * различных URL-адресов, включая разрешенные маршруты для
+     * публичного доступа, а также маршруты, требующие аутентификации.
+     * </p>
+     *
+     * @param http объект HttpSecurity для настройки.
+     * @return настроенная цепочка фильтров безопасности.
+     * @throws Exception если возникает ошибка при конфигурации безопасности.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Отключение CSRF
-                .authorizeHttpRequests(authorization ->
-                        authorization
-                                .requestMatchers(AUTH_WHITELIST) // Доступ для всех
-                                .permitAll()
-                                .requestMatchers("/ads/**", "/users/**") // Доступ только для аутентифицированных пользователей
-                                .authenticated()
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/avatar_user/**").permitAll()
+                        .requestMatchers("/ads/**", "/users/**").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем все OPTIONS запросы
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                 )
-                .cors(cors -> cors.configure(http)) // Настройка CORS
-                .httpBasic(withDefaults()); // Базовая HTTP-аутентификация
-
+                .cors(withDefaults())
+                .httpBasic(withDefaults());
         return http.build();
     }
 
+    /**
+     * Создает и настраивает объект PasswordEncoder для шифрования паролей.
+     * <p>
+     * Использует BCrypt для шифрования паролей пользователей.
+     * </p>
+     *
+     * @return экземпляр PasswordEncoder.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
-
-//@Bean
-//public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//    http
-//            .csrf(csrf -> csrf.disable()) // Отключение CSRF с новой конфигурацией
-//            .authorizeHttpRequests(authorization ->
-//                    authorization
-//                            .requestMatchers(AUTH_WHITELIST) // Доступ для всех
-//                            .permitAll()
-//                            .requestMatchers("/ads/**") // Доступ к объявлениям для авторизованных пользователей
-//                            .hasAnyRole("USER", "ADMIN")
-//                            .requestMatchers("/users/**") // Доступ к управлению пользователями только для администраторов
-//                            .hasRole("ADMIN")
-//                            .anyRequest() // Любой другой запрос должен быть аутентифицирован
-//                            .authenticated()
-//            )
-//            .cors(cors -> cors.configure(http)) // Новая конфигурация для CORS
-//            .httpBasic(withDefaults()); // Базовая HTTP-аутентификация
-//
-//    return http.build();
-//}

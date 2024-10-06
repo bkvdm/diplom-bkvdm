@@ -3,6 +3,7 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.factory.Mappers;
 import ru.skypro.homework.dto.ImageDto;
 import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.ImageUser;
@@ -10,7 +11,7 @@ import ru.skypro.homework.model.ImageUser;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ImageMapper {
 
-//    ImageMapper INSTANCE = Mappers.getMapper(ImageMapper.class);
+    ImageMapper INSTANCE = Mappers.getMapper(ImageMapper.class);
 
     // Для преобразования imageUser -> imageDto
     @Mapping(target = "relatedId", source = "user.id")
@@ -28,4 +29,3 @@ public interface ImageMapper {
     @Mapping(target = "ad.id", source = "relatedId")
     ImageAd imageDtoToImageAd(ImageDto imageDto);
 }
-

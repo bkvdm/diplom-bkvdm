@@ -17,7 +17,6 @@ import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.UserService;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,6 +41,23 @@ public class AdServiceImpl implements AdService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdServiceImpl.class);
 
+    /**
+     * Добавляет новое объявление в систему и загружает связанное изображение.
+     *
+     * <p>
+     * Этот метод принимает данные для создания объявления и файл изображения. Он проверяет, что заголовок
+     * объявления и файл изображения не пустые, создает новое объявление, сохраняет его в репозитории,
+     * и если изображение предоставлено, загружает его.
+     * </p>
+     *
+     * @param createOrUpdateAd объект {@link CreateOrUpdateAd}, содержащий данные для создания нового объявления,
+     *                         включая заголовок, описание и цену.
+     * @param multipartFile    файл изображения, связанного с объявлением.
+     * @return объект {@link AdReview.AdResult}, содержащий информацию о созданном объявлении,
+     * включая идентификатор, автора, заголовок, цену и путь к изображению.
+     * @throws IOException              если произошла ошибка при загрузке изображения.
+     * @throws IllegalArgumentException если заголовок объявления пустой или файл изображения не загружен.
+     */
     @Override
     public AdReview.AdResult addingAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile multipartFile) throws IOException {
         logger.info("Object createOrUpdateAd, contains: {}", createOrUpdateAd.getDescription());
@@ -133,7 +149,7 @@ public class AdServiceImpl implements AdService {
      * @throws AccessDeniedException   если пользователь не является автором объявления.
      */
     @Override
-    @Transactional
+//    @Transactional
     public void deleteAd(long idAd) {
         long currentUserId = userService.getCurrentUserId();
         logger.info("Found current user, with id: {}", currentUserId);
@@ -167,7 +183,7 @@ public class AdServiceImpl implements AdService {
      * @return обновленное объявление.
      */
     @Override
-    @Transactional
+//    @Transactional
     public Ad updateAd(long id, CreateOrUpdateAd updateData) {
 
         Ad existingAd = adRepository.findById(id)

@@ -25,11 +25,13 @@ public interface UserMapper {
     Register toRegisterDto(User user);
 
     // Для преобразования User -> UserDto
-    @Mapping(source = "imageUser.filePath", target = "image")  // Преобразование filePath в строку image
+    @Mapping(source = "imageUser.filePath", target = "image")
+    // Преобразование filePath в строку image
     UserDto toUserDto(User user);
 
     // Для преобразования UserDto -> User
-    @Mapping(target = "imageUser", source = "image")  // Преобразование строки image обратно в объект ImageUser
+    @Mapping(target = "imageUser", source = "image")
+    // Преобразование строки image обратно в объект ImageUser
     User toEntity(UserDto userDto);
 
     // Дополнительный метод для преобразования строки image в объект ImageUser

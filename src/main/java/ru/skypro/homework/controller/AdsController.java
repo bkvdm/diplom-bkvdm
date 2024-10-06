@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -131,6 +130,7 @@ public class AdsController {
      * @param id идентификатор объявления.
      * @return расширенная информация о выбранном объявлении.
      */
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Получение информации об объявлении",
             description = "Метод для получения информации об объявлении", tags = {"Объявления"},
             responses = {
