@@ -1,24 +1,14 @@
 package ru.skypro.homework.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -42,19 +32,19 @@ public class WebSecurityConfig {
 //            "/ads/**"
     };
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Collections.singletonList("*")); // Для теста: разрешение всех источников
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000")); // Используем allowedOriginPatterns
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "method"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+////        configuration.setAllowedOrigins(Collections.singletonList("*")); // Для теста: разрешение всех источников
+//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+////            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000")); // Используем allowedOriginPatterns
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "method"));
+//        configuration.setAllowCredentials(true);
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -78,17 +68,14 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Отключение CSRF
-                .authorizeHttpRequests(authorization ->
-                        authorization
-                                .requestMatchers(AUTH_WHITELIST) // Доступ для всех
-                                .permitAll()
-                                .requestMatchers("/ads/**", "/users/**") // Доступ только для аутентифицированных пользователей
-                                .authenticated()
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/avatar_user/**").permitAll()
+                        .requestMatchers("/ads/**", "/users/**").authenticated()
                 )
-                .cors(cors -> cors.configure(http)) // Настройка CORS
-                .httpBasic(withDefaults()); // Базовая HTTP-аутентификация
-
+                .cors(withDefaults())
+                .httpBasic(withDefaults());
         return http.build();
     }
 

@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.CommentResult;
 import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
 import ru.skypro.homework.dto.Role;
@@ -47,12 +48,11 @@ public class ContentServiceImpl implements ContentService {
      * @throws NoSuchElementException если объявление с указанным id не найдено
      */
     @Override
-    public List<CommentReview.CommentResult> getCommentsByAdId(long adId) {
+    public CommentReview getCommentsByAdId(long adId) {
         List<Comment> comments = commentRepository.findByAdId(adId);
 
-        return comments.stream()
-                .map(commentReviewMapper::toCommentResult)
-                .collect(Collectors.toList());
+        return commentReviewMapper.toCommentReview(comments);
+
     }
 
     /**
@@ -65,7 +65,7 @@ public class ContentServiceImpl implements ContentService {
      * @throws NoSuchElementException если объявление не найдено
      */
     @Override
-    public CommentReview.CommentResult addComment(long adId, CreateOrUpdateComment commentData) {
+    public CommentResult addComment(long adId, CreateOrUpdateComment commentData) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new NoSuchElementException("Объявление с id " + adId + " не найдено"));
 
@@ -105,7 +105,7 @@ public class ContentServiceImpl implements ContentService {
      * @throws AccessDeniedException  если текущий пользователь не имеет прав на обновление данного комментария
      */
     @Override
-    public CommentReview.CommentResult updateComment(long adId, long commentId, CreateOrUpdateComment commentData) {
+    public CommentResult updateComment(long adId, long commentId, CreateOrUpdateComment commentData) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new NoSuchElementException("Объявление с id " + adId + " не найдено"));
 

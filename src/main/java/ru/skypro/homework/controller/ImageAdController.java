@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.nio.file.Path;
 
+@CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/image_ad")
 public class ImageAdController {

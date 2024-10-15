@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.homework.dto.CommentResult;
 import ru.skypro.homework.dto.CommentReview;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,10 +49,10 @@ public class CommentsController {
                     @ApiResponse(responseCode = "500", description = "Ошибка сервера", content = @Content)
             })
     @GetMapping
-    public ResponseEntity<List<CommentReview.CommentResult>> getComments(
+    public ResponseEntity<CommentReview> getComments(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId) {
-        List<CommentReview.CommentResult> comments = commentService.getCommentsByAdId(adId);
+        CommentReview comments = commentService.getCommentsByAdId(adId);
 
         return ResponseEntity.ok(comments);
     }
@@ -73,7 +74,7 @@ public class CommentsController {
             })
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CommentReview.CommentResult> addComment(
+    public ResponseEntity<CommentResult> addComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -81,7 +82,7 @@ public class CommentsController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
-        CommentReview.CommentResult createdComment = commentService.addComment(adId, commentData);
+        CommentResult createdComment = commentService.addComment(adId, commentData);
         return ResponseEntity.ok(createdComment);
     }
 
@@ -128,7 +129,7 @@ public class CommentsController {
             })
     @PatchMapping("/{commentId}")
     @PreAuthorize("hasRole('ADMIN') or #comment.user.id == principal.id")
-    public ResponseEntity<CommentReview.CommentResult> updateComment(
+    public ResponseEntity<CommentResult> updateComment(
             @Parameter(description = "Идентификатор объявления", required = true, example = "1")
             @PathVariable("adId") long adId,
             @Parameter(description = "Идентификатор комментария", required = true, example = "1")
@@ -138,7 +139,7 @@ public class CommentsController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateOrUpdateComment.class))
             ) @RequestBody CreateOrUpdateComment commentData) {
-        CommentReview.CommentResult updatedComment = commentService.updateComment(adId, commentId, commentData);
+        CommentResult updatedComment = commentService.updateComment(adId, commentId, commentData);
         return ResponseEntity.ok(updatedComment);
     }
 }
